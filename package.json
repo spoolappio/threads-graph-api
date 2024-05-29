@@ -1,0 +1,32 @@
+{
+  "name": "instagram-threads-api",
+  "version": "0.0.1",
+  "description": "A library to interface with the official Instagram Threads API",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "instagram",
+    "threads",
+    "api",
+    "sdk",
+    "lib",
+    "library",
+    "official"
+  ],
+  "author": "Tony Peng <me@tpg.me>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "eslint": "^9.3.0",
+    "eslint-config-prettier": "^9.1.0",
+    "express": "^4.19.2",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}
