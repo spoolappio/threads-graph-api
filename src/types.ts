@@ -46,12 +46,12 @@ export const ErrorResponseSchema = z.object({
 });
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 
-export const ExchangeAuthenticationCodeResponseSchema = z.object({
+export const ExchangeAuthorizationCodeResponseSchema = z.object({
   access_token: z.string(),
   user_id: z.coerce.string(),
 });
-export type ExchangeAuthenticationCodeResponse = z.infer<
-  typeof ExchangeAuthenticationCodeResponseSchema
+export type ExchangeAuthorizationCodeResponse = z.infer<
+  typeof ExchangeAuthorizationCodeResponseSchema
 >;
 
 export type CreateMediaContainerParams = {

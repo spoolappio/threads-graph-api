@@ -1,7 +1,7 @@
 {
   "name": "threads-graph-api",
   "repository": "github:spoolappio/threads-graph-api",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "A library to interface with the official Instagram Threads API",
   "main": "dist/src/index.js",
   "scripts": {

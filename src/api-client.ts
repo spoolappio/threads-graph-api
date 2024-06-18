@@ -5,8 +5,8 @@ import {
   CreateMediaContainerResponseSchema,
   ErrorResponse,
   ErrorResponseSchema,
-  ExchangeAuthenticationCodeResponse,
-  ExchangeAuthenticationCodeResponseSchema,
+  ExchangeAuthorizationCodeResponse,
+  ExchangeAuthorizationCodeResponseSchema,
   GetAccountMetricsParams,
   GetAccountMetricsResponse,
   GetAccountMetricsResponseSchema,
@@ -146,7 +146,7 @@ export class ThreadsPublicApiClient {
     clientSecret: string,
     redirectUri: string,
     code: string,
-  ): Promise<ExchangeAuthenticationCodeResponse> {
+  ): Promise<ExchangeAuthorizationCodeResponse> {
     const formData = new FormData();
     formData.append('client_id', clientId);
     formData.append('client_secret', clientSecret);
@@ -159,7 +159,7 @@ export class ThreadsPublicApiClient {
       body: formData,
     });
     const json = await response.json();
-    return ExchangeAuthenticationCodeResponseSchema.parse(json);
+    return ExchangeAuthorizationCodeResponseSchema.parse(json);
   }
 }
 

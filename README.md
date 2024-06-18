@@ -1,5 +1,5 @@
 # threads-graph-api
-A Javascript library to interface with the official Instagram Threads API
+A Javascript library to interface with the official Instagram Threads API. Built by [Spool](https://spoolapp.io), a Threads creator toolkit with AI-assisted content generation, seamless cross-platform posting, advanced post composing, and more!
 
 Maintainers: [@tonypeng](https://www.github.com/tonypeng), [@ishaanbuildsthings](https://www.github.com/ishaanbuildsthings)
 
@@ -23,7 +23,7 @@ $ npm install threads-graph-api
 ```
 
 ## Usage
-`threads-graph-api` follows the [official Threads API documentation](https://developers.facebook.com/docs/threads/reference) for endpoints and parameters.
+`threads-graph-api` follows the [official Threads API documentation](https://developers.facebook.com/docs/threads/reference) for endpoints and parameters. See [types.ts](src/types.ts) for all request and response schemas.
 
 ### Initializing the Client
 
@@ -95,7 +95,7 @@ const code = 'auth-code';
 const response = await publicClient.exchangeAuthorizationCode(clientId, clientSecret, redirectUri, code);
 ```
 
-### Authenticated API
+### Using the API
 
 #### Creating a media container
 
@@ -239,6 +239,21 @@ const params = {
 };
 
 const response = await authenticatedClient.getAccountMetrics(params);
+```
+
+### Handling errors
+The `ThreadsApiError` class is thrown when the Threads API returns an error. The `message` field of the returned error is accessible from the `error` field on the `ThreadsApiError` object. To access other fields, use `getThreadsError()` to retrieve the full error object returned by the Threads API:
+
+```typescript
+try {
+  const response = await authenticatedClient.getUserProfile(params);
+} catch (error) {
+  if (error instanceof ThreadsApiError) {
+    console.error('Threads API Error:', error.message, error.getThreadsError());
+  } else {
+    console.error('Unexpected Error:', error);
+  }
+}
 ```
 
 ## Contributing
