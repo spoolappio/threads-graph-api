@@ -1,14 +1,18 @@
 {
-  "name": "instagram-threads-api",
-  "version": "0.0.1",
+  "name": "threads-graph-api",
+  "repository": "github:spoolappio/threads-graph-api",
+  "version": "0.0.3",
   "description": "A library to interface with the official Instagram Threads API",
-  "main": "build/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
+    "build": "tsc && tsc-alias",
+    "demo": "tsx watch demo/index.ts",
     "test": "jest"
   },
   "keywords": [
     "instagram",
     "threads",
+    "graph",
     "api",
     "sdk",
     "lib",
@@ -24,6 +28,8 @@
     "express": "^4.19.2",
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "tsx": "^4.11.0",
     "typescript": "^5.4.5"
   },
   "dependencies": {

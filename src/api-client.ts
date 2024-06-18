@@ -3,6 +3,8 @@ import {
   CreateMediaContainerParams,
   CreateMediaContainerResponse,
   CreateMediaContainerResponseSchema,
+  ErrorResponse,
+  ErrorResponseSchema,
   ExchangeAuthenticationCodeResponse,
   ExchangeAuthenticationCodeResponseSchema,
   GetAccountMetricsParams,
@@ -37,10 +39,33 @@ import {
   PublishResponseSchema,
 } from '@/types';
 
+export class ThreadsApiError extends Error {
+  private readonly _error?: ErrorResponse;
+
+  constructor(error?: ErrorResponse) {
+    super(error?.error.message || 'An unknown error occurred');
+
+    this._error = error;
+
+    const actualProto = new.target.prototype;
+
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(this, actualProto);
+    } else {
+      // @ts-ignore
+      this.__proto__ = actualProto;
+    }
+  }
+
+  getThreadsError() {
+    return this._error;
+  }
+}
+
 export class ThreadsPublicApiClient {
   private readonly _baseUrl: string;
 
-  constructor(baseUrl: string = 'https://graph.instagram.com') {
+  constructor(baseUrl: string = 'https://graph.threads.net') {
     this._baseUrl = baseUrl;
   }
 
@@ -66,6 +91,10 @@ export class ThreadsPublicApiClient {
       method: 'GET',
     });
     const json = await response.json();
+    if ((json as any).error) {
+      const error = ErrorResponseSchema.safeParse(json);
+      throw new ThreadsApiError(error.success ? error.data : undefined);
+    }
     return responseSchema.parse(json);
   }
 
@@ -76,14 +105,18 @@ export class ThreadsPublicApiClient {
   ): Promise<V> {
     const apiUrl = this._apiUrl(endpoint);
     const body = new FormData();
-    Object.keys(params).forEach((key) =>
-      body.append(key, params[key] as string),
+    Object.keys(params).forEach(
+      (key) => params[key] && body.append(key, params[key]),
     );
     const response = await fetch(apiUrl, {
       method: 'POST',
       body,
     });
     const json = await response.json();
+    if ((json as any).error) {
+      const error = ErrorResponseSchema.safeParse(json);
+      throw new ThreadsApiError(error.success ? error.data : undefined);
+    }
     return responseSchema.parse(json);
   }
 
@@ -92,9 +125,11 @@ export class ThreadsPublicApiClient {
     redirectUri: string,
     scope: string[],
     state?: string,
+    baseUrl: string = 'https://www.threads.net',
   ) {
     return (
-      this._apiUrl('/oauth/authorize') +
+      baseUrl +
+      '/oauth/authorize' +
       '?' +
       new URLSearchParams({
         client_id: clientId,
@@ -106,7 +141,7 @@ export class ThreadsPublicApiClient {
     );
   }
 
-  async exchangeAuthenticationCode(
+  async exchangeAuthorizationCode(
     clientId: string,
     clientSecret: string,
     redirectUri: string,
@@ -135,7 +170,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   constructor(
     accessToken: string,
     userId: string,
-    baseUrl: string = 'https://graph.instagram.com',
+    baseUrl: string = 'https://graph.threads.net',
   ) {
     super(baseUrl);
 
@@ -177,7 +212,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
     params: CreateMediaContainerParams,
   ): Promise<CreateMediaContainerResponse> {
     return this._authenticatedPost(
-      '/me/threads',
+      '/v1.0/me/threads',
       {
         media_type: params.mediaType,
         text: params.text,
@@ -201,7 +236,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
 
   async publish(params: PublishParams): Promise<PublishResponse> {
     return this._authenticatedPost(
-      '/me/threads/publish',
+      '/v1.0/me/threads_publish',
       {
         creation_id: params.creationId,
       },
@@ -214,7 +249,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetUserThreadsResponse> {
     const {id, fields, ...restParams} = params;
     return this._authenticatedGet(
-      `/${id}/threads`,
+      `/v1.0/${id}/threads`,
       {
         fields: fields?.join(','),
         ...restParams,
@@ -228,7 +263,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetMediaObjectResponse> {
     const {id, fields} = params;
     return this._authenticatedGet(
-      `/${id}`,
+      `/v1.0/${id}`,
       {
         fields: fields?.join(','),
       },
@@ -241,7 +276,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetUserProfileResponse> {
     const {id, fields} = params;
     return this._authenticatedGet(
-      `/${id}`,
+      `/v1.0/${id}`,
       {
         fields: fields?.join(','),
       },
@@ -254,7 +289,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetUserThreadsPublishingLimitResponse> {
     const {id, fields} = params;
     return this._authenticatedGet(
-      `/${id}/threads_publishing_limit`,
+      `/v1.0/${id}/threads_publishing_limit`,
       {
         fields: fields?.join(','),
       },
@@ -265,7 +300,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   async getReplies(params: GetRepliesParams): Promise<GetRepliesResponse> {
     const {id, fields, ...restParams} = params;
     return this._authenticatedGet(
-      `/${id}/replies`,
+      `/v1.0/${id}/replies`,
       {
         fields: fields?.join(','),
         ...restParams,
@@ -279,7 +314,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetConversationResponse> {
     const {id, fields, ...restParams} = params;
     return this._authenticatedGet(
-      `/${id}/conversation`,
+      `/v1.0/${id}/conversation`,
       {
         fields: fields?.join(','),
         ...restParams,
@@ -291,7 +326,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   async manageReply(params: ManageReplyParams): Promise<ManageReplyResponse> {
     const {id, ...restParams} = params;
     return this._authenticatedPost(
-      `/${id}/manage_reply`,
+      `/v1.0/${id}/manage_reply`,
       {
         ...restParams,
       },
@@ -304,7 +339,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetMediaMetricsResponse> {
     const {id, metrics, ...restParams} = params;
     return this._authenticatedGet(
-      `/${id}/insights`,
+      `/v1.0/${id}/insights`,
       {
         metric: metrics?.join(','),
         ...restParams,
@@ -318,7 +353,7 @@ export class ThreadsAuthenticatedApiClient extends ThreadsPublicApiClient {
   ): Promise<GetAccountMetricsResponse> {
     const {id, metrics, ...restParams} = params;
     return this._authenticatedGet(
-      `/${id}/threads_insights`,
+      `/v1.0/${id}/threads_insights`,
       {
         metric: metrics?.join(','),
         ...restParams,

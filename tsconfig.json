@@ -7,6 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "declaration": true,
+    "outDir": "dist/",
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -14,6 +15,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": "./",
     "paths": {
       "@/*": [
         "src/*"
@@ -22,9 +24,10 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "**/*.ts",
+    "**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

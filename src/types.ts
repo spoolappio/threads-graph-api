@@ -25,8 +25,8 @@ const makePaginatedResponseSchema = <T>(dataSchema: z.ZodType<T>) =>
     data: z.array(dataSchema),
     paging: z.object({
       cursors: z.object({
-        before: z.string(),
-        after: z.string(),
+        before: z.string().optional(),
+        after: z.string().optional(),
       }),
     }),
   });
@@ -35,6 +35,16 @@ export const SuccessResponseSchema = z.object({
   success: z.boolean(),
 });
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
+
+export const ErrorResponseSchema = z.object({
+  error: z.object({
+    code: z.number().optional(),
+    fbtrace_id: z.string().optional(),
+    message: z.string().optional(),
+    type: z.string().optional(),
+  }),
+});
+export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 
 export const ExchangeAuthenticationCodeResponseSchema = z.object({
   access_token: z.string(),
@@ -85,21 +95,6 @@ export const PublishResponseSchema = z.object({
 });
 export type PublishResponse = z.infer<typeof PublishResponseSchema>;
 
-//
-// | 'id'
-// | 'media_product_type'
-// | 'media_type'
-// | 'media_url'
-// | 'permalink'
-// | 'owner'
-// | 'username'
-// | 'text'
-// | 'timestamp'
-// | 'shortcode'
-// | 'thumbnail_url'
-// | 'children'
-// | 'is_quote_post';
-
 export const ThreadsMediaObjectSchema = z.object({
   id: z.string().optional(),
   media_product_type: z.string().optional(),
@@ -125,6 +120,7 @@ export const ThreadsMediaObjectSchema = z.object({
   children: z.array(z.string()).optional(),
   is_quote_post: z.boolean().optional(),
   is_reply: z.boolean().optional(),
+  status_code: z.string().optional(),
 });
 export type ThreadsMediaObject = z.infer<typeof ThreadsMediaObjectSchema>;
 export type ThreadsMediaObjectField = keyof ThreadsMediaObject;
